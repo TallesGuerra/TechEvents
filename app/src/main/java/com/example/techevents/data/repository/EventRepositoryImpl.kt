@@ -18,12 +18,11 @@ class EventRepositoryImpl(private val api: TechEventsApi) : EventRepository {
         return try {
             val response = api.getEvents(
                 page = page,
-                limit = limit,
-                search = query.ifBlank { null },
-                category = category.ifBlank { null },
-                isOnline = isOnline
+                query = query.ifBlank { null },
+                categories = category.ifBlank { null },
+                onlineOnly = if (isOnline == true) true else null
             )
-            Result.Success(response.map { it.toDomain() })
+            Result.Success(response.events.map { it.toDomain() })
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -47,37 +46,29 @@ class EventRepositoryImpl(private val api: TechEventsApi) : EventRepository {
         isOnline: Boolean,
         capacity: Int,
         link: String?
-    ): Result<Event> {
-        return try {
-            val request = CreateEventRequest(
-                title = title,
-                description = description,
-                date = date,
-                time = time,
-                location = location,
-                category = category,
-                isOnline = isOnline,
-                capacity = capacity,
-                link = link
-            )
-            Result.Success(api.createEvent(request).toDomain())
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
-    }
-
-    private fun EventDto.toDomain() = Event(
-        id = id,
-        title = title,
-        description = description,
-        date = date,
-        time = time,
-        location = location,
-        category = category,
-        isOnline = isOnline,
-        capacity = capacity,
-        enrolled = enrolled,
-        imageUrl = imageUrl,
-        link = link
+    ): Result<Event> = Result.Error(
+        UnsupportedOperationException("Criação de eventos requer conta Eventbrite com organização")
     )
+
+    private fun EventDto.toDomain(): Event {
+        val dateParts = start.local?.split("T")
+        val location = venue?.let {
+            it.address?.localizedAddress ?: it.name ?: "Local não informado"
+        } ?: if (onlineEvent) "Online" else "Local não informado"
+
+        return Event(
+            id = id,
+            title = name.text ?: "",
+            description = description?.text ?: "",
+            date = dateParts?.getOrNull(0) ?: "",
+            time = dateParts?.getOrNull(1)?.take(5) ?: "",
+            location = location,
+            category = "",
+            isOnline = onlineEvent,
+            capacity = capacity ?: 0,
+            enrolled = 0,
+            imageUrl = logo?.url,
+            link = url
+        )
+    }
 }
