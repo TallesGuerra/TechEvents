@@ -67,8 +67,16 @@ class EventListActivity : AppCompatActivity() {
             intent.putExtra(EventDetailActivity.EXTRA_EVENT_ID, event.id)
             startActivity(intent)
         }
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                val lastVisible = layoutManager.findLastVisibleItemPosition()
+                val total = layoutManager.itemCount
+                if (dy > 0 && lastVisible >= total - 3) viewModel.loadNextPage()
+            }
+        })
     }
 
     private fun setupSearchView() {
@@ -99,7 +107,9 @@ class EventListActivity : AppCompatActivity() {
             recyclerView.visibility = View.GONE
 
             when (state) {
-                is UiState.Loading -> progressBar.visibility = View.VISIBLE
+                is UiState.Loading -> {
+                    if (adapter.currentList.isEmpty()) progressBar.visibility = View.VISIBLE
+                }
                 is UiState.Success -> {
                     recyclerView.visibility = View.VISIBLE
                     adapter.submitList(state.data)
