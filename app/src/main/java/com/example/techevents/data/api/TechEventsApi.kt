@@ -1,23 +1,36 @@
 package com.example.techevents.data.api
 
-import com.example.techevents.data.dto.MeetupEventDto
-import com.example.techevents.data.dto.MeetupResponse
+import com.example.techevents.data.dto.CreateEventRequest
+import com.example.techevents.data.dto.EventDto
+import com.example.techevents.data.dto.TechEventsResponse
+import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TechEventsApi {
 
-    @GET("find/upcoming_events")
-    suspend fun getUpcomingEvents(
-        @Query("text") text: String = "",
-        @Query("lat") lat: Double? = null,
-        @Query("lon") lon: Double? = null,
-        @Query("online_events") onlineEvents: Boolean? = null
-    ): MeetupResponse
+    @GET("events")
+    suspend fun getEvents(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
+        @Query("search") search: String? = null,
+        @Query("category") category: String? = null,
+        @Query("isOnline") isOnline: Boolean? = null
+    ): TechEventsResponse
 
     @GET("events/{id}")
-    suspend fun getEventDetail(
-        @Path("id") id: String
-    ): MeetupEventDto
+    suspend fun getEventById(@Path("id") id: String): EventDto
+
+    @POST("events")
+    suspend fun createEvent(@Body request: CreateEventRequest): EventDto
+
+    @PUT("events/{id}")
+    suspend fun updateEvent(@Path("id") id: String, @Body request: CreateEventRequest): EventDto
+
+    @DELETE("events/{id}")
+    suspend fun deleteEvent(@Path("id") id: String): EventDto
 }

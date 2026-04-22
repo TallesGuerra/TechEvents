@@ -16,30 +16,57 @@ class EventListViewModel(private val getEventsUseCase: GetEventsUseCase) : ViewM
     private val _events = MutableLiveData<UiState<List<Event>>>()
     val events: LiveData<UiState<List<Event>>> = _events
 
+    private val accumulatedEvents = mutableListOf<Event>()
+    private var currentPage = 1
+    private var isLoading = false
+    var canLoadMore = true
+        private set
+
     private var currentQuery = ""
     private var currentCategory = ""
     private var currentIsOnline: Boolean? = null
+
+    companion object {
+        const val PAGE_SIZE = 20
+    }
 
     init {
         loadEvents()
     }
 
     fun loadEvents(page: Int = 1) {
-        _events.value = UiState.Loading
+        if (isLoading) return
+        isLoading = true
+        currentPage = page
+
+        if (page == 1) {
+            accumulatedEvents.clear()
+            _events.value = UiState.Loading
+        }
+
         viewModelScope.launch {
-            when (val result = getEventsUseCase(page, 20, currentQuery, currentCategory, currentIsOnline)) {
+            when (val result = getEventsUseCase(page, PAGE_SIZE, currentQuery, currentCategory, currentIsOnline)) {
                 is Result.Success -> {
-                    if (result.data.isEmpty()) {
+                    isLoading = false
+                    canLoadMore = result.data.size == PAGE_SIZE
+                    accumulatedEvents.addAll(result.data)
+
+                    if (accumulatedEvents.isEmpty()) {
                         _events.value = UiState.Empty
                     } else {
-                        _events.value = UiState.Success(result.data)
+                        _events.value = UiState.Success(accumulatedEvents.toList())
                     }
                 }
                 is Result.Error -> {
+                    isLoading = false
                     _events.value = UiState.Error(result.exception.message ?: "Erro desconhecido")
                 }
             }
         }
+    }
+
+    fun loadNextPage() {
+        if (canLoadMore && !isLoading) loadEvents(currentPage + 1)
     }
 
     fun search(query: String) {
