@@ -2,7 +2,6 @@ package com.example.techevents.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-
 data class MeetupEventDto(
     val id: String,
     val name: String,
