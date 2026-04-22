@@ -1,7 +1,6 @@
 package com.example.techevents.data.dto
 
-data class EventDto(
-    val id: String,
+data class CreateEventRequest(
     val title: String,
     val description: String,
     val date: String,
@@ -10,7 +9,7 @@ data class EventDto(
     val category: String,
     val isOnline: Boolean,
     val capacity: Int,
-    val enrolled: Int,
-    val imageUrl: String?,
-    val link: String?
+    val enrolled: Int = 0,
+    val imageUrl: String? = null,
+    val link: String? = null
 )

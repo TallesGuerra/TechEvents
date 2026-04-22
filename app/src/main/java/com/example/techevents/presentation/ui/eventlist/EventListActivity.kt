@@ -1,5 +1,6 @@
 package com.example.techevents.presentation.ui.eventlist
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -7,6 +8,7 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.SearchView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,8 +18,10 @@ import com.example.techevents.data.api.RetrofitClient
 import com.example.techevents.data.repository.EventRepositoryImpl
 import com.example.techevents.domain.usecase.GetEventsUseCase
 import com.example.techevents.presentation.state.UiState
+import com.example.techevents.presentation.ui.createevent.CreateEventActivity
 import com.example.techevents.presentation.ui.eventdetail.EventDetailActivity
 import com.example.techevents.presentation.viewmodel.EventListViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class EventListActivity : AppCompatActivity() {
 
@@ -31,6 +35,13 @@ class EventListActivity : AppCompatActivity() {
     private lateinit var btnFilterOnline: Button
     private lateinit var btnFilterPresential: Button
     private lateinit var btnFilterAll: Button
+    private lateinit var fabAddEvent: FloatingActionButton
+
+    private val createEventLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) viewModel.loadEvents()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +64,10 @@ class EventListActivity : AppCompatActivity() {
         btnFilterOnline = findViewById(R.id.btnFilterOnline)
         btnFilterPresential = findViewById(R.id.btnFilterPresential)
         btnFilterAll = findViewById(R.id.btnFilterAll)
+        fabAddEvent = findViewById(R.id.fabAddEvent)
+        fabAddEvent.setOnClickListener {
+            createEventLauncher.launch(Intent(this, CreateEventActivity::class.java))
+        }
     }
 
     private fun setupViewModel() {
@@ -67,8 +82,16 @@ class EventListActivity : AppCompatActivity() {
             intent.putExtra(EventDetailActivity.EXTRA_EVENT_ID, event.id)
             startActivity(intent)
         }
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                val lastVisible = layoutManager.findLastVisibleItemPosition()
+                val total = layoutManager.itemCount
+                if (dy > 0 && lastVisible >= total - 3) viewModel.loadNextPage()
+            }
+        })
     }
 
     private fun setupSearchView() {
@@ -99,7 +122,9 @@ class EventListActivity : AppCompatActivity() {
             recyclerView.visibility = View.GONE
 
             when (state) {
-                is UiState.Loading -> progressBar.visibility = View.VISIBLE
+                is UiState.Loading -> {
+                    if (adapter.currentList.isEmpty()) progressBar.visibility = View.VISIBLE
+                }
                 is UiState.Success -> {
                     recyclerView.visibility = View.VISIBLE
                     adapter.submitList(state.data)

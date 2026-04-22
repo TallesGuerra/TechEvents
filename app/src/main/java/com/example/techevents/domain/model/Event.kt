@@ -11,5 +11,6 @@ data class Event(
     val isOnline: Boolean,
     val capacity: Int,
     val enrolled: Int,
-    val imageUrl: String?
+    val imageUrl: String?,
+    val link: String?
 )
