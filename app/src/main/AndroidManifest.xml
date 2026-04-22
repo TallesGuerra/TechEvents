@@ -35,6 +35,10 @@
             android:name=".presentation.ui.createevent.CreateEventActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".presentation.ui.editevent.EditEventActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
