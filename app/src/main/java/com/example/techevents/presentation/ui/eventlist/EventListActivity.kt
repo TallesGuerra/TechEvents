@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.techevents.R
 import com.example.techevents.data.api.RetrofitClient
 import com.example.techevents.data.repository.EventRepositoryImpl
+import com.example.techevents.domain.usecase.GetEventsUseCase
 import com.example.techevents.presentation.state.UiState
 import com.example.techevents.presentation.ui.eventdetail.EventDetailActivity
 import com.example.techevents.presentation.viewmodel.EventListViewModel
@@ -56,7 +57,7 @@ class EventListActivity : AppCompatActivity() {
 
     private fun setupViewModel() {
         val repository = EventRepositoryImpl(RetrofitClient.api)
-        val factory = EventListViewModel.Factory(repository)
+        val factory = EventListViewModel.Factory(GetEventsUseCase(repository))
         viewModel = ViewModelProvider(this, factory)[EventListViewModel::class.java]
     }
 
