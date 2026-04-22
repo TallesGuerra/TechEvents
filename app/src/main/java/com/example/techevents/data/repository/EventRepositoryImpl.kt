@@ -15,7 +15,7 @@ class EventRepositoryImpl(private val api: TechEventsApi) : EventRepository {
         isOnline: Boolean?
     ): Result<List<Event>> {
         return try {
-            val response = api.getUpcomingEvents(text = query)
+            val response = api.getUpcomingEvents(text = query, onlineEvents = isOnline)
             val events = response.map { it.toDomain() }
             Result.Success(events)
         } catch (e: Exception) {
@@ -35,7 +35,7 @@ class EventRepositoryImpl(private val api: TechEventsApi) : EventRepository {
     private fun MeetupEventDto.toDomain(): Event {
         val venueName = venue?.name ?: group?.name ?: "Online"
         val venueAddress = venue?.address ?: ""
-        val location = if (venueAddress.isNotBlank()) "$venueName - $venueAddress" else venueName
+        val location = if (venueAddress.isBlank()) venueName else "$venueName - $venueAddress"
 
         return Event(
             id = id,
