@@ -1,5 +1,7 @@
 package com.example.techevents.presentation.ui.eventdetail
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
@@ -28,6 +30,7 @@ class EventDetailActivity : AppCompatActivity() {
     private lateinit var tvLocation: TextView
     private lateinit var tvDescription: TextView
     private lateinit var tvEnrolled: TextView
+    private lateinit var tvLink: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +53,7 @@ class EventDetailActivity : AppCompatActivity() {
         tvLocation = findViewById(R.id.tvLocation)
         tvDescription = findViewById(R.id.tvDescription)
         tvEnrolled = findViewById(R.id.tvEnrolled)
+        tvLink = findViewById(R.id.tvLink)
     }
 
     private fun setupViewModel() {
@@ -73,6 +77,16 @@ class EventDetailActivity : AppCompatActivity() {
                     tvLocation.text = event.location
                     tvDescription.text = event.description
                     tvEnrolled.text = "${event.enrolled}/${event.capacity} inscritos"
+
+                    if (event.link.isNullOrBlank()) {
+                        tvLink.visibility = View.GONE
+                    } else {
+                        tvLink.visibility = View.VISIBLE
+                        tvLink.text = event.link
+                        tvLink.setOnClickListener {
+                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.link)))
+                        }
+                    }
                 }
                 is UiState.Error -> {
                     tvError.visibility = View.VISIBLE
