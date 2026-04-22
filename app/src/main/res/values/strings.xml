@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">Tech Events</string>
+    <string name="splash_tagline">Descubra eventos tech perto de você</string>
+
+    <string name="search_hint">Buscar eventos…</string>
+    <string name="filter_all">Todos</string>
+    <string name="filter_online">Online</string>
+    <string name="filter_presential">Presencial</string>
+    <string name="add_event">Adicionar evento</string>
+    <string name="empty_events">Nenhum evento encontrado</string>
+
+    <string name="title_event_detail">Detalhe do Evento</string>
+    <string name="btn_edit">Editar</string>
+
+    <string name="title_create_event">Criar Evento</string>
+    <string name="title_edit_event">Editar Evento</string>
+    <string name="hint_title">Título *</string>
+    <string name="hint_description">Descrição</string>
+    <string name="hint_date">Data (AAAA-MM-DD) *</string>
+    <string name="hint_time">Horário (HH:mm)</string>
+    <string name="hint_location">Local *</string>
+    <string name="hint_category">Categoria</string>
+    <string name="hint_capacity">Capacidade máxima</string>
+    <string name="hint_link">Link do evento (opcional)</string>
+    <string name="label_online_event">Evento online</string>
+    <string name="btn_save">Salvar Evento</string>
+    <string name="btn_delete">Excluir Evento</string>
 </resources>
