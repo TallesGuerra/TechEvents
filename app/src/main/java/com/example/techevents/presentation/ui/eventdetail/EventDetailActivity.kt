@@ -4,8 +4,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.techevents.R
@@ -13,6 +15,7 @@ import com.example.techevents.data.api.RetrofitClient
 import com.example.techevents.data.repository.EventRepositoryImpl
 import com.example.techevents.domain.usecase.GetEventDetailUseCase
 import com.example.techevents.presentation.state.UiState
+import com.example.techevents.presentation.ui.editevent.EditEventActivity
 import com.example.techevents.presentation.viewmodel.EventDetailViewModel
 
 class EventDetailActivity : AppCompatActivity() {
@@ -31,16 +34,28 @@ class EventDetailActivity : AppCompatActivity() {
     private lateinit var tvDescription: TextView
     private lateinit var tvEnrolled: TextView
     private lateinit var tvLink: TextView
+    private lateinit var btnEdit: Button
+
+    private lateinit var eventId: String
+
+    private val editLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            setResult(RESULT_OK)
+            finish()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_event_detail)
 
+        eventId = intent.getStringExtra(EXTRA_EVENT_ID) ?: run { finish(); return }
+
         setupViews()
         setupViewModel()
         observeEvent()
-
-        val eventId = intent.getStringExtra(EXTRA_EVENT_ID) ?: return
         viewModel.loadEvent(eventId)
     }
 
@@ -54,6 +69,13 @@ class EventDetailActivity : AppCompatActivity() {
         tvDescription = findViewById(R.id.tvDescription)
         tvEnrolled = findViewById(R.id.tvEnrolled)
         tvLink = findViewById(R.id.tvLink)
+        btnEdit = findViewById(R.id.btnEdit)
+
+        btnEdit.setOnClickListener {
+            val intent = Intent(this, EditEventActivity::class.java)
+            intent.putExtra(EditEventActivity.EXTRA_EVENT_ID, eventId)
+            editLauncher.launch(intent)
+        }
     }
 
     private fun setupViewModel() {

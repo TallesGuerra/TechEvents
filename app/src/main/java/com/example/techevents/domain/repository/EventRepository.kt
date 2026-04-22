@@ -25,4 +25,19 @@ interface EventRepository {
         capacity: Int,
         link: String?
     ): Result<Event>
+
+    suspend fun updateEvent(
+        id: String,
+        title: String,
+        description: String,
+        date: String,
+        time: String,
+        location: String,
+        category: String,
+        isOnline: Boolean,
+        capacity: Int,
+        link: String?
+    ): Result<Event>
+
+    suspend fun deleteEvent(id: String): Result<Unit>
 }
