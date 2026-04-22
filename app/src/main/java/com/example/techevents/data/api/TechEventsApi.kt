@@ -12,7 +12,8 @@ interface TechEventsApi {
     suspend fun getUpcomingEvents(
         @Query("text") text: String = "",
         @Query("lat") lat: Double? = null,
-        @Query("lon") lon: Double? = null
+        @Query("lon") lon: Double? = null,
+        @Query("online_events") onlineEvents: Boolean? = null
     ): MeetupResponse
 
     @GET("events/{id}")
