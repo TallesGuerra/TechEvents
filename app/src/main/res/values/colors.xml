@@ -4,11 +4,25 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="primary">#1565C0</color>
+    <color name="primary_dark">#003c8f</color>
+    <color name="primary_light">#5e92f3</color>
     <color name="on_primary">#FFFFFF</color>
     <color name="primary_container">#D3E4FF</color>
     <color name="on_primary_container">#001C3B</color>
-    <color name="secondary">#535F70</color>
+
+    <color name="secondary">#FF6D00</color>
     <color name="on_secondary">#FFFFFF</color>
     <color name="secondary_container">#D7E3F8</color>
     <color name="on_secondary_container">#0F1C2B</color>
+
+    <color name="background">#F0F4F8</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="on_surface">#1A1A2E</color>
+    <color name="on_surface_variant">#5C6472</color>
+
+    <color name="error">#D32F2F</color>
+    <color name="on_error">#FFFFFF</color>
+
+    <color name="divider">#E0E0E0</color>
+    <color name="chip_selected">#E3F0FF</color>
 </resources>
