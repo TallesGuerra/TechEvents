@@ -42,6 +42,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+<<<<<<< HEAD
+=======
+
+            <ImageView
+                android:id="@+id/ivCover"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+>>>>>>> c843979 (Implement Coil image loading, pull-to-refresh and Room offline cache)
 
             <ImageView
                 android:id="@+id/ivCover"
@@ -142,6 +158,8 @@
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
+
+            </LinearLayout>
 
             </LinearLayout>
 

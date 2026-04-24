@@ -5,13 +5,16 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import coil.load
 import com.example.techevents.R
 import com.example.techevents.data.api.RetrofitClient
+import com.example.techevents.data.local.AppDatabase
 import com.example.techevents.data.repository.EventRepositoryImpl
 import com.example.techevents.domain.usecase.GetEventDetailUseCase
 import com.example.techevents.presentation.state.UiState
@@ -35,6 +38,7 @@ class EventDetailActivity : AppCompatActivity() {
     private lateinit var tvEnrolled: TextView
     private lateinit var tvLink: TextView
     private lateinit var btnEdit: Button
+    private lateinit var ivCover: ImageView
 
     private lateinit var eventId: String
 
@@ -70,6 +74,7 @@ class EventDetailActivity : AppCompatActivity() {
         tvEnrolled = findViewById(R.id.tvEnrolled)
         tvLink = findViewById(R.id.tvLink)
         btnEdit = findViewById(R.id.btnEdit)
+        ivCover = findViewById(R.id.ivCover)
 
         btnEdit.setOnClickListener {
             val intent = Intent(this, EditEventActivity::class.java)
@@ -79,7 +84,8 @@ class EventDetailActivity : AppCompatActivity() {
     }
 
     private fun setupViewModel() {
-        val repository = EventRepositoryImpl(RetrofitClient.api)
+        val dao = AppDatabase.getInstance(this).eventDao()
+        val repository = EventRepositoryImpl(RetrofitClient.api, dao)
         val factory = EventDetailViewModel.Factory(GetEventDetailUseCase(repository))
         viewModel = ViewModelProvider(this, factory)[EventDetailViewModel::class.java]
     }
@@ -100,11 +106,18 @@ class EventDetailActivity : AppCompatActivity() {
                     tvDescription.text = event.description
                     tvEnrolled.text = "${event.enrolled}/${event.capacity} inscritos"
 
+                    if (!event.imageUrl.isNullOrBlank()) {
+                        ivCover.visibility = View.VISIBLE
+                        ivCover.load(event.imageUrl) { crossfade(true) }
+                    } else {
+                        ivCover.visibility = View.GONE
+                    }
+
                     if (event.link.isNullOrBlank()) {
                         tvLink.visibility = View.GONE
                     } else {
                         tvLink.visibility = View.VISIBLE
-                        tvLink.text = event.link
+                        tvLink.text = "🔗 ${event.link}"
                         tvLink.setOnClickListener {
                             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.link)))
                         }
