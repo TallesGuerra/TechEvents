@@ -13,8 +13,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.techevents.R
 import com.example.techevents.data.api.RetrofitClient
+import com.example.techevents.data.local.AppDatabase
 import com.example.techevents.data.repository.EventRepositoryImpl
 import com.example.techevents.domain.usecase.GetEventsUseCase
 import com.example.techevents.presentation.state.UiState
@@ -36,6 +38,7 @@ class EventListActivity : AppCompatActivity() {
     private lateinit var btnFilterPresential: Button
     private lateinit var btnFilterAll: Button
     private lateinit var fabAddEvent: FloatingActionButton
+    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     private val createEventLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -65,13 +68,17 @@ class EventListActivity : AppCompatActivity() {
         btnFilterPresential = findViewById(R.id.btnFilterPresential)
         btnFilterAll = findViewById(R.id.btnFilterAll)
         fabAddEvent = findViewById(R.id.fabAddEvent)
+        swipeRefresh = findViewById(R.id.swipeRefresh)
+
         fabAddEvent.setOnClickListener {
             createEventLauncher.launch(Intent(this, CreateEventActivity::class.java))
         }
+        swipeRefresh.setOnRefreshListener { viewModel.loadEvents(1) }
     }
 
     private fun setupViewModel() {
-        val repository = EventRepositoryImpl(RetrofitClient.api)
+        val dao = AppDatabase.getInstance(this).eventDao()
+        val repository = EventRepositoryImpl(RetrofitClient.api, dao)
         val factory = EventListViewModel.Factory(GetEventsUseCase(repository))
         viewModel = ViewModelProvider(this, factory)[EventListViewModel::class.java]
     }
@@ -116,6 +123,7 @@ class EventListActivity : AppCompatActivity() {
 
     private fun observeEvents() {
         viewModel.events.observe(this) { state ->
+            swipeRefresh.isRefreshing = false
             progressBar.visibility = View.GONE
             tvError.visibility = View.GONE
             tvEmpty.visibility = View.GONE
