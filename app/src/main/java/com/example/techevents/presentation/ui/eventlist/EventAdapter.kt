@@ -3,10 +3,12 @@ package com.example.techevents.presentation.ui.eventlist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.techevents.R
 import com.example.techevents.domain.model.Event
 
@@ -25,6 +27,7 @@ class EventAdapter(
     }
 
     inner class EventViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val ivCover: ImageView = itemView.findViewById(R.id.ivCover)
         private val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
         private val tvDate: TextView = itemView.findViewById(R.id.tvDate)
         private val tvLocation: TextView = itemView.findViewById(R.id.tvLocation)
@@ -33,10 +36,22 @@ class EventAdapter(
 
         fun bind(event: Event) {
             tvTitle.text = event.title
-            tvDate.text = "${event.date} ${event.time}"
+            tvDate.text = "${event.date}  ${event.time}"
             tvLocation.text = event.location
-            tvCategory.text = event.category
-            tvEnrolled.text = "${event.enrolled}/${event.capacity}"
+            tvCategory.text = event.category.ifBlank { null }
+            tvCategory.visibility = if (event.category.isBlank()) View.GONE else View.VISIBLE
+            tvEnrolled.text = "${event.enrolled}/${event.capacity} inscritos"
+
+            if (!event.imageUrl.isNullOrBlank()) {
+                ivCover.visibility = View.VISIBLE
+                ivCover.load(event.imageUrl) {
+                    crossfade(true)
+                    error(android.R.drawable.ic_menu_gallery)
+                }
+            } else {
+                ivCover.visibility = View.GONE
+            }
+
             itemView.setOnClickListener { onClick(event) }
         }
     }

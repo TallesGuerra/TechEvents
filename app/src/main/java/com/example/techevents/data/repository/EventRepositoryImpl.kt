@@ -3,10 +3,16 @@ package com.example.techevents.data.repository
 import com.example.techevents.data.api.TechEventsApi
 import com.example.techevents.data.dto.CreateEventRequest
 import com.example.techevents.data.dto.EventDto
+import com.example.techevents.data.local.EventDao
+import com.example.techevents.data.local.toDomain
+import com.example.techevents.data.local.toEntity
 import com.example.techevents.domain.model.Event
 import com.example.techevents.domain.repository.EventRepository
 
-class EventRepositoryImpl(private val api: TechEventsApi) : EventRepository {
+class EventRepositoryImpl(
+    private val api: TechEventsApi,
+    private val dao: EventDao
+) : EventRepository {
 
     override suspend fun getEvents(
         page: Int,
@@ -23,9 +29,20 @@ class EventRepositoryImpl(private val api: TechEventsApi) : EventRepository {
                 category = category.ifBlank { null },
                 isOnline = isOnline
             )
-            Result.Success(response.map { it.toDomain() })
+            val events = response.map { it.toDomain() }
+            if (page == 1 && query.isBlank() && category.isBlank() && isOnline == null) {
+                dao.clearAll()
+                dao.insertAll(events.map { it.toEntity() })
+            }
+            Result.Success(events)
         } catch (e: Exception) {
-            Result.Error(e)
+            if (page == 1 && query.isBlank() && category.isBlank() && isOnline == null) {
+                val cached = dao.getAll()
+                if (cached.isNotEmpty()) Result.Success(cached.map { it.toDomain() })
+                else Result.Error(e)
+            } else {
+                Result.Error(e)
+            }
         }
     }
 
@@ -38,28 +55,11 @@ class EventRepositoryImpl(private val api: TechEventsApi) : EventRepository {
     }
 
     override suspend fun createEvent(
-        title: String,
-        description: String,
-        date: String,
-        time: String,
-        location: String,
-        category: String,
-        isOnline: Boolean,
-        capacity: Int,
-        link: String?
+        title: String, description: String, date: String, time: String,
+        location: String, category: String, isOnline: Boolean, capacity: Int, link: String?
     ): Result<Event> {
         return try {
-            val request = CreateEventRequest(
-                title = title,
-                description = description,
-                date = date,
-                time = time,
-                location = location,
-                category = category,
-                isOnline = isOnline,
-                capacity = capacity,
-                link = link
-            )
+            val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
             Result.Success(api.createEvent(request).toDomain())
         } catch (e: Exception) {
             Result.Error(e)
@@ -67,29 +67,11 @@ class EventRepositoryImpl(private val api: TechEventsApi) : EventRepository {
     }
 
     override suspend fun updateEvent(
-        id: String,
-        title: String,
-        description: String,
-        date: String,
-        time: String,
-        location: String,
-        category: String,
-        isOnline: Boolean,
-        capacity: Int,
-        link: String?
+        id: String, title: String, description: String, date: String, time: String,
+        location: String, category: String, isOnline: Boolean, capacity: Int, link: String?
     ): Result<Event> {
         return try {
-            val request = CreateEventRequest(
-                title = title,
-                description = description,
-                date = date,
-                time = time,
-                location = location,
-                category = category,
-                isOnline = isOnline,
-                capacity = capacity,
-                link = link
-            )
+            val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
             Result.Success(api.updateEvent(id, request).toDomain())
         } catch (e: Exception) {
             Result.Error(e)
@@ -106,17 +88,8 @@ class EventRepositoryImpl(private val api: TechEventsApi) : EventRepository {
     }
 
     private fun EventDto.toDomain() = Event(
-        id = id,
-        title = title,
-        description = description,
-        date = date,
-        time = time,
-        location = location,
-        category = category,
-        isOnline = isOnline,
-        capacity = capacity,
-        enrolled = enrolled,
-        imageUrl = imageUrl,
-        link = link
+        id = id, title = title, description = description, date = date, time = time,
+        location = location, category = category, isOnline = isOnline, capacity = capacity,
+        enrolled = enrolled, imageUrl = imageUrl, link = link
     )
 }
