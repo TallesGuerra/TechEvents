@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
-import android.widget.Switch
+import com.google.android.material.materialswitch.MaterialSwitch
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -35,7 +35,7 @@ class EditEventActivity : AppCompatActivity() {
     private lateinit var etCategory: EditText
     private lateinit var etCapacity: EditText
     private lateinit var etLink: EditText
-    private lateinit var cbIsOnline: Switch
+    private lateinit var cbIsOnline: MaterialSwitch
     private lateinit var btnSave: Button
     private lateinit var btnDelete: Button
     private lateinit var progressBar: ProgressBar
@@ -63,7 +63,6 @@ class EditEventActivity : AppCompatActivity() {
         etCategory = findViewById(R.id.etCategory)
         etCapacity = findViewById(R.id.etCapacity)
         etLink = findViewById(R.id.etLink)
-        @Suppress("DEPRECATION")
         cbIsOnline = findViewById(R.id.cbIsOnline)
         btnSave = findViewById(R.id.btnSave)
         btnDelete = findViewById(R.id.btnDelete)
