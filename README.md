@@ -14,7 +14,7 @@
 
 | Version | Date | Link |
 |---------|------|------|
-| v1.0.0  | 2025 | [Download APK](https://github.com/TallesGuerra/TechEvents/releases/download/v1.0.0/app-debug.apk) |
+| v1.0.0  | 2026 | [Download APK](https://github.com/TallesGuerra/TechEvents/releases/download/v1.0.0/app-debug.apk) |
 
 > Requires Android 7.0+ (API 24). Enable **"Install from unknown sources"** in device settings before installing.
 
