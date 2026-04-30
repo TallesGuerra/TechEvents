@@ -9,7 +9,7 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/gradient_toolbar"
+        android:background="@color/primary"
         app:navigationIcon="@android:drawable/ic_menu_revert"
         app:navigationIconTint="@color/on_primary"
         app:title="Editar Evento"
