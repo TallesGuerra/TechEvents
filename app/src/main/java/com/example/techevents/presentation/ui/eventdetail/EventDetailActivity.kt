@@ -20,6 +20,7 @@ import com.example.techevents.domain.usecase.GetEventDetailUseCase
 import com.example.techevents.presentation.state.UiState
 import com.example.techevents.presentation.ui.editevent.EditEventActivity
 import com.example.techevents.presentation.viewmodel.EventDetailViewModel
+import com.example.techevents.utils.toDisplayDate
 
 class EventDetailActivity : AppCompatActivity() {
 
@@ -81,6 +82,9 @@ class EventDetailActivity : AppCompatActivity() {
             intent.putExtra(EditEventActivity.EXTRA_EVENT_ID, eventId)
             editLauncher.launch(intent)
         }
+
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener { finish() }
     }
 
     private fun setupViewModel() {
@@ -88,6 +92,16 @@ class EventDetailActivity : AppCompatActivity() {
         val repository = EventRepositoryImpl(RetrofitClient.api, dao)
         val factory = EventDetailViewModel.Factory(GetEventDetailUseCase(repository))
         viewModel = ViewModelProvider(this, factory)[EventDetailViewModel::class.java]
+    }
+
+    private fun formatDateFull(apiDate: String): String {
+        return try {
+            val input = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+            val output = java.text.SimpleDateFormat("dd 'de' MMMM, yyyy", java.util.Locale("pt", "BR"))
+            output.format(input.parse(apiDate)!!)
+        } catch (e: Exception) {
+            apiDate
+        }
     }
 
     private fun observeEvent() {
@@ -100,7 +114,7 @@ class EventDetailActivity : AppCompatActivity() {
                 is UiState.Success -> {
                     val event = state.data
                     tvTitle.text = event.title
-                    tvDate.text = event.date
+                    tvDate.text = formatDateFull(event.date)
                     tvTime.text = event.time
                     tvLocation.text = event.location
                     tvDescription.text = event.description
