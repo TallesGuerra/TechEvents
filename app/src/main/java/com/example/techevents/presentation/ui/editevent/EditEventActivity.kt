@@ -2,6 +2,8 @@ package com.example.techevents.presentation.ui.editevent
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -18,7 +20,11 @@ import com.example.techevents.domain.usecase.GetEventDetailUseCase
 import com.example.techevents.domain.usecase.UpdateEventUseCase
 import com.example.techevents.presentation.state.UiState
 import com.example.techevents.presentation.viewmodel.EditEventViewModel
+import com.example.techevents.utils.DateMaskWatcher
+import com.example.techevents.utils.TimeMaskWatcher
 import com.example.techevents.utils.showToast
+import com.example.techevents.utils.toApiDate
+import com.example.techevents.utils.toDisplayDate
 
 class EditEventActivity : AppCompatActivity() {
 
@@ -32,7 +38,7 @@ class EditEventActivity : AppCompatActivity() {
     private lateinit var etDate: EditText
     private lateinit var etTime: EditText
     private lateinit var etLocation: EditText
-    private lateinit var etCategory: EditText
+    private lateinit var etCategory: AutoCompleteTextView
     private lateinit var etCapacity: EditText
     private lateinit var etLink: EditText
     private lateinit var cbIsOnline: MaterialSwitch
@@ -68,8 +74,22 @@ class EditEventActivity : AppCompatActivity() {
         btnDelete = findViewById(R.id.btnDelete)
         progressBar = findViewById(R.id.progressBar)
 
+        val categories = listOf(
+            "Android", "iOS", "Kotlin", "Flutter", "Web", "Backend",
+            "DevOps", "IA / Machine Learning", "Segurança", "Cloud", "UX/UI", "Outro"
+        )
+        etCategory.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categories)
+        )
+
         btnSave.setOnClickListener { onSaveClicked() }
         btnDelete.setOnClickListener { confirmDelete() }
+
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener { finish() }
+
+        etDate.addTextChangedListener(DateMaskWatcher())
+        etTime.addTextChangedListener(TimeMaskWatcher())
     }
 
     private fun setupViewModel() {
@@ -92,10 +112,10 @@ class EditEventActivity : AppCompatActivity() {
                     val event = state.data
                     etTitle.setText(event.title)
                     etDescription.setText(event.description)
-                    etDate.setText(event.date)
+                    etDate.setText(event.date.toDisplayDate())
                     etTime.setText(event.time)
                     etLocation.setText(event.location)
-                    etCategory.setText(event.category)
+                    etCategory.setText(event.category, false)
                     etCapacity.setText(event.capacity.toString())
                     etLink.setText(event.link ?: "")
                     cbIsOnline.isChecked = event.isOnline
@@ -155,7 +175,7 @@ class EditEventActivity : AppCompatActivity() {
     private fun onSaveClicked() {
         val title = etTitle.text.toString().trim()
         val description = etDescription.text.toString().trim()
-        val date = etDate.text.toString().trim()
+        val date = etDate.text.toString().trim().toApiDate()
         val time = etTime.text.toString().trim()
         val location = etLocation.text.toString().trim()
         val category = etCategory.text.toString().trim()
