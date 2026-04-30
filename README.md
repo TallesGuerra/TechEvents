@@ -4,14 +4,25 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
 ![XML](https://img.shields.io/badge/XML%20Views-Traditional%20UI-FF6B35?style=for-the-badge&logo=android&logoColor=white)
 ![Material](https://img.shields.io/badge/Material%20Design-Components-6200EE?style=for-the-badge)
+[![Download APK](https://img.shields.io/badge/Download-APK%20v1.0.0-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/TallesGuerra/TechEvents/releases/download/v1.0.0/app-debug.apk)
 
 **Android event agenda app built with Kotlin and XML Views to create, browse, edit, and delete personal tech events, with search, category filters, and infinite scroll pagination.**
 
 ---
 
+## 📥 Download
+
+| Version | Date | Link |
+|---------|------|------|
+| v1.0.0  | 2025 | [Download APK](https://github.com/TallesGuerra/TechEvents/releases/download/v1.0.0/app-debug.apk) |
+
+> Requires Android 7.0+ (API 24). Enable **"Install from unknown sources"** in device settings before installing.
+
+---
+
 ## 📸 Screenshots
 
-> _Screens being finalized — XML visual layouts in progress._
+> _See the full release at [v1.0.0](https://github.com/TallesGuerra/TechEvents/releases/tag/v1.0.0)._
 
 ---
 
@@ -175,10 +186,10 @@ com.example.techevents/
 - [x] Full CRUD via REST API
 - [x] MVVM + Repository + UseCase architecture
 - [x] UiState sealed class for all UI states
-- [ ] XML visual layouts (in progress)
-- [ ] Image loading with Glide or Coil
-- [ ] Pull-to-refresh
-- [ ] Offline cache with Room
+- [x] Material Design 3 XML layouts
+- [x] Image loading with Coil
+- [x] Pull-to-refresh with SwipeRefreshLayout
+- [x] Offline cache with Room database
 
 ---
 
