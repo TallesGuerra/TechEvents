@@ -22,7 +22,9 @@
 
 ## 📸 Screenshots
 
-> _See the full release at [v1.0.0](https://github.com/TallesGuerra/TechEvents/releases/tag/v1.0.0)._
+| Home | Novo Evento |
+|------|-------------|
+| ![Home](app/src/main/res/screenshots/home.png) | ![Novo Evento](app/src/main/res/screenshots/newEvent.png) |
 
 ---
 
