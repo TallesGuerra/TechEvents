@@ -10,7 +10,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
+        android:background="@drawable/gradient_toolbar"
         app:navigationIcon="@android:drawable/ic_menu_revert"
         app:navigationIconTint="@color/on_primary"
         app:title="Detalhe do Evento"
