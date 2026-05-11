@@ -1,6 +1,5 @@
 package com.example.techevents.domain.repository
 
-import com.example.techevents.data.repository.Result
 import com.example.techevents.domain.model.Event
 
 interface EventRepository {

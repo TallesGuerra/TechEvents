@@ -34,23 +34,23 @@ class EventRepositoryImpl(
                 dao.clearAll()
                 dao.insertAll(events.map { it.toEntity() })
             }
-            Result.Success(events)
+            Result.success(events)
         } catch (e: Exception) {
             if (page == 1 && query.isBlank() && category.isBlank() && isOnline == null) {
                 val cached = dao.getAll()
-                if (cached.isNotEmpty()) Result.Success(cached.map { it.toDomain() })
-                else Result.Error(e)
+                if (cached.isNotEmpty()) Result.success(cached.map { it.toDomain() })
+                else Result.failure(e)
             } else {
-                Result.Error(e)
+                Result.failure(e)
             }
         }
     }
 
     override suspend fun getEventById(id: String): Result<Event> {
         return try {
-            Result.Success(api.getEventById(id).toDomain())
+            Result.success(api.getEventById(id).toDomain())
         } catch (e: Exception) {
-            Result.Error(e)
+            Result.failure(e)
         }
     }
 
@@ -60,9 +60,9 @@ class EventRepositoryImpl(
     ): Result<Event> {
         return try {
             val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
-            Result.Success(api.createEvent(request).toDomain())
+            Result.success(api.createEvent(request).toDomain())
         } catch (e: Exception) {
-            Result.Error(e)
+            Result.failure(e)
         }
     }
 
@@ -72,18 +72,18 @@ class EventRepositoryImpl(
     ): Result<Event> {
         return try {
             val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
-            Result.Success(api.updateEvent(id, request).toDomain())
+            Result.success(api.updateEvent(id, request).toDomain())
         } catch (e: Exception) {
-            Result.Error(e)
+            Result.failure(e)
         }
     }
 
     override suspend fun deleteEvent(id: String): Result<Unit> {
         return try {
             api.deleteEvent(id)
-            Result.Success(Unit)
+            Result.success(Unit)
         } catch (e: Exception) {
-            Result.Error(e)
+            Result.failure(e)
         }
     }
 
