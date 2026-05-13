@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.techevents.data.repository.Result
 import com.example.techevents.domain.model.Event
 import com.example.techevents.domain.usecase.CreateEventUseCase
 import com.example.techevents.presentation.state.UiState
@@ -29,12 +28,9 @@ class CreateEventViewModel(private val createEventUseCase: CreateEventUseCase) :
     ) {
         _createState.value = UiState.Loading
         viewModelScope.launch {
-            when (val result = createEventUseCase(
-                title, description, date, time, location, category, isOnline, capacity, link
-            )) {
-                is Result.Success -> _createState.value = UiState.Success(result.data)
-                is Result.Error -> _createState.value = UiState.Error(result.exception.message ?: "Erro ao criar evento")
-            }
+            createEventUseCase(title, description, date, time, location, category, isOnline, capacity, link)
+                .onSuccess { event -> _createState.value = UiState.Success(event) }
+                .onFailure { error -> _createState.value = UiState.Error(error.message ?: "Erro ao criar evento") }
         }
     }
 

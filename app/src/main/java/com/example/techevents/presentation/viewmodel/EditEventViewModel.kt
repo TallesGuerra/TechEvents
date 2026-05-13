@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.techevents.data.repository.Result
 import com.example.techevents.domain.model.Event
 import com.example.techevents.domain.usecase.DeleteEventUseCase
 import com.example.techevents.domain.usecase.GetEventDetailUseCase
@@ -31,10 +30,9 @@ class EditEventViewModel(
     fun loadEvent(id: String) {
         _event.value = UiState.Loading
         viewModelScope.launch {
-            when (val result = getEventDetailUseCase(id)) {
-                is Result.Success -> _event.value = UiState.Success(result.data)
-                is Result.Error -> _event.value = UiState.Error(result.exception.message ?: "Erro ao carregar evento")
-            }
+            getEventDetailUseCase(id)
+                .onSuccess { event -> _event.value = UiState.Success(event) }
+                .onFailure { error -> _event.value = UiState.Error(error.message ?: "Erro ao carregar evento") }
         }
     }
 
@@ -52,22 +50,18 @@ class EditEventViewModel(
     ) {
         _updateState.value = UiState.Loading
         viewModelScope.launch {
-            when (val result = updateEventUseCase(
-                id, title, description, date, time, location, category, isOnline, capacity, link
-            )) {
-                is Result.Success -> _updateState.value = UiState.Success(result.data)
-                is Result.Error -> _updateState.value = UiState.Error(result.exception.message ?: "Erro ao atualizar evento")
-            }
+            updateEventUseCase(id, title, description, date, time, location, category, isOnline, capacity, link)
+                .onSuccess { event -> _updateState.value = UiState.Success(event) }
+                .onFailure { error -> _updateState.value = UiState.Error(error.message ?: "Erro ao atualizar evento") }
         }
     }
 
     fun deleteEvent(id: String) {
         _deleteState.value = UiState.Loading
         viewModelScope.launch {
-            when (val result = deleteEventUseCase(id)) {
-                is Result.Success -> _deleteState.value = UiState.Success(Unit)
-                is Result.Error -> _deleteState.value = UiState.Error(result.exception.message ?: "Erro ao deletar evento")
-            }
+            deleteEventUseCase(id)
+                .onSuccess { _deleteState.value = UiState.Success(Unit) }
+                .onFailure { error -> _deleteState.value = UiState.Error(error.message ?: "Erro ao deletar evento") }
         }
     }
 

@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.techevents.data.repository.Result
 import com.example.techevents.domain.model.Event
 import com.example.techevents.domain.usecase.GetEventsUseCase
 import com.example.techevents.presentation.state.UiState
@@ -45,23 +44,18 @@ class EventListViewModel(private val getEventsUseCase: GetEventsUseCase) : ViewM
         }
 
         viewModelScope.launch {
-            when (val result = getEventsUseCase(page, PAGE_SIZE, currentQuery, currentCategory, currentIsOnline)) {
-                is Result.Success -> {
+            getEventsUseCase(page, PAGE_SIZE, currentQuery, currentCategory, currentIsOnline)
+                .onSuccess { events ->
                     isLoading = false
-                    canLoadMore = result.data.size == PAGE_SIZE
-                    accumulatedEvents.addAll(result.data)
-
-                    if (accumulatedEvents.isEmpty()) {
-                        _events.value = UiState.Empty
-                    } else {
-                        _events.value = UiState.Success(accumulatedEvents.toList())
-                    }
+                    canLoadMore = events.size == PAGE_SIZE
+                    accumulatedEvents.addAll(events)
+                    _events.value = if (accumulatedEvents.isEmpty()) UiState.Empty
+                                    else UiState.Success(accumulatedEvents.toList())
                 }
-                is Result.Error -> {
+                .onFailure { error ->
                     isLoading = false
-                    _events.value = UiState.Error(result.exception.message ?: "Erro desconhecido")
+                    _events.value = UiState.Error(error.message ?: "Erro desconhecido")
                 }
-            }
         }
     }
 
