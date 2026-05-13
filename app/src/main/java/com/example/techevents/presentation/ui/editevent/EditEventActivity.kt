@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.techevents.R
 import com.example.techevents.data.api.RetrofitClient
-import com.example.techevents.data.api.TechEventsApi
 import com.example.techevents.data.local.AppDatabase
 import com.example.techevents.data.repository.EventRepositoryImpl
 import com.example.techevents.domain.usecase.DeleteEventUseCase
@@ -95,7 +94,7 @@ class EditEventActivity : AppCompatActivity() {
 
     private fun setupViewModel() {
         val dao = AppDatabase.getInstance(this).eventDao()
-        val repository = EventRepositoryImpl(RetrofitClient.retrofit.create(TechEventsApi::class.java), dao)
+        val repository = EventRepositoryImpl(RetrofitClient.api, dao)
         val factory = EditEventViewModel.Factory(
             GetEventDetailUseCase(repository),
             UpdateEventUseCase(repository),

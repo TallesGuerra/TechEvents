@@ -7,6 +7,7 @@ import com.example.techevents.data.local.EventDao
 import com.example.techevents.data.local.toDomain
 import com.example.techevents.data.local.toEntity
 import com.example.techevents.domain.model.Event
+import com.example.techevents.domain.repository.EventRepository
 
 class EventRepositoryImpl(
     private val api: TechEventsApi,
