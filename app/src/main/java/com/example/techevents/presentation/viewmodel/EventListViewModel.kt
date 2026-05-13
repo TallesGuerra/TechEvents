@@ -6,11 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.techevents.domain.model.Event
-import com.example.techevents.domain.usecase.GetEventsUseCase
+import com.example.techevents.domain.repository.EventRepository
 import com.example.techevents.presentation.state.UiState
 import kotlinx.coroutines.launch
 
-class EventListViewModel(private val getEventsUseCase: GetEventsUseCase) : ViewModel() {
+class EventListViewModel(private val repository: EventRepository) : ViewModel() {
 
     private val _events = MutableLiveData<UiState<List<Event>>>()
     val events: LiveData<UiState<List<Event>>> = _events
@@ -44,7 +44,7 @@ class EventListViewModel(private val getEventsUseCase: GetEventsUseCase) : ViewM
         }
 
         viewModelScope.launch {
-            val result = getEventsUseCase(page, PAGE_SIZE, currentQuery, currentCategory, currentIsOnline)
+            val result = repository.getEvents(page, PAGE_SIZE, currentQuery, currentCategory, currentIsOnline)
             isLoading = false
             result
                 .onSuccess { data ->
@@ -78,11 +78,11 @@ class EventListViewModel(private val getEventsUseCase: GetEventsUseCase) : ViewM
         loadEvents()
     }
 
-    class Factory(private val getEventsUseCase: GetEventsUseCase) : ViewModelProvider.Factory {
+    class Factory(private val repository: EventRepository) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(EventListViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return EventListViewModel(getEventsUseCase) as T
+                return EventListViewModel(repository) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

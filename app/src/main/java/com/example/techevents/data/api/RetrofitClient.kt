@@ -9,12 +9,10 @@ object RetrofitClient {
 
     private const val BASE_URL = "https://69f22a28b15130b97352a208.mockapi.io/api/v1/"
 
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-
     private val okHttpClient = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
         .build()
 
     val api: TechEventsApi by lazy {

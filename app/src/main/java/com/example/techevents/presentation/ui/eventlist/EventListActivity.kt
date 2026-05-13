@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.techevents.R
 import com.example.techevents.data.api.RetrofitClient
+import com.example.techevents.data.datasource.LocalDataSourceImpl
+import com.example.techevents.data.datasource.RemoteDataSourceImpl
 import com.example.techevents.data.local.AppDatabase
 import com.example.techevents.data.repository.EventRepositoryImpl
 import com.example.techevents.presentation.state.UiState
@@ -23,6 +25,7 @@ import com.example.techevents.presentation.ui.createevent.CreateEventActivity
 import com.example.techevents.presentation.ui.eventdetail.EventDetailActivity
 import com.example.techevents.presentation.viewmodel.EventListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+
 
 class EventListActivity : AppCompatActivity() {
 
@@ -76,8 +79,9 @@ class EventListActivity : AppCompatActivity() {
     }
 
     private fun setupViewModel() {
-        val dao = AppDatabase.getInstance(this).eventDao()
-        val repository = EventRepositoryImpl(RetrofitClient.api, dao)
+        val remote = RemoteDataSourceImpl(RetrofitClient.api)
+        val local = LocalDataSourceImpl(AppDatabase.getInstance(this).eventDao())
+        val repository = EventRepositoryImpl(remote, local)
         val factory = EventListViewModel.Factory(repository)
         viewModel = ViewModelProvider(this, factory)[EventListViewModel::class.java]
     }
