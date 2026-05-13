@@ -5,19 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.techevents.data.repository.Result
 import com.example.techevents.domain.model.Event
-import com.example.techevents.domain.usecase.DeleteEventUseCase
-import com.example.techevents.domain.usecase.GetEventDetailUseCase
-import com.example.techevents.domain.usecase.UpdateEventUseCase
+import com.example.techevents.domain.repository.EventRepository
 import com.example.techevents.presentation.state.UiState
 import kotlinx.coroutines.launch
 
-class EditEventViewModel(
-    private val getEventDetailUseCase: GetEventDetailUseCase,
-    private val updateEventUseCase: UpdateEventUseCase,
-    private val deleteEventUseCase: DeleteEventUseCase
-) : ViewModel() {
+class EditEventViewModel(private val repository: EventRepository) : ViewModel() {
 
     private val _event = MutableLiveData<UiState<Event>>()
     val event: LiveData<UiState<Event>> = _event
@@ -31,10 +24,9 @@ class EditEventViewModel(
     fun loadEvent(id: String) {
         _event.value = UiState.Loading
         viewModelScope.launch {
-            when (val result = getEventDetailUseCase(id)) {
-                is Result.Success -> _event.value = UiState.Success(result.data)
-                is Result.Error -> _event.value = UiState.Error(result.exception.message ?: "Erro ao carregar evento")
-            }
+            repository.getEventById(id)
+                .onSuccess { _event.value = UiState.Success(it) }
+                .onFailure { _event.value = UiState.Error(it.message ?: "Erro ao carregar evento") }
         }
     }
 
@@ -52,34 +44,26 @@ class EditEventViewModel(
     ) {
         _updateState.value = UiState.Loading
         viewModelScope.launch {
-            when (val result = updateEventUseCase(
-                id, title, description, date, time, location, category, isOnline, capacity, link
-            )) {
-                is Result.Success -> _updateState.value = UiState.Success(result.data)
-                is Result.Error -> _updateState.value = UiState.Error(result.exception.message ?: "Erro ao atualizar evento")
-            }
+            repository.updateEvent(id, title, description, date, time, location, category, isOnline, capacity, link)
+                .onSuccess { _updateState.value = UiState.Success(it) }
+                .onFailure { _updateState.value = UiState.Error(it.message ?: "Erro ao atualizar evento") }
         }
     }
 
     fun deleteEvent(id: String) {
         _deleteState.value = UiState.Loading
         viewModelScope.launch {
-            when (val result = deleteEventUseCase(id)) {
-                is Result.Success -> _deleteState.value = UiState.Success(Unit)
-                is Result.Error -> _deleteState.value = UiState.Error(result.exception.message ?: "Erro ao deletar evento")
-            }
+            repository.deleteEvent(id)
+                .onSuccess { _deleteState.value = UiState.Success(Unit) }
+                .onFailure { _deleteState.value = UiState.Error(it.message ?: "Erro ao deletar evento") }
         }
     }
 
-    class Factory(
-        private val getEventDetailUseCase: GetEventDetailUseCase,
-        private val updateEventUseCase: UpdateEventUseCase,
-        private val deleteEventUseCase: DeleteEventUseCase
-    ) : ViewModelProvider.Factory {
+    class Factory(private val repository: EventRepository) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(EditEventViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return EditEventViewModel(getEventDetailUseCase, updateEventUseCase, deleteEventUseCase) as T
+                return EditEventViewModel(repository) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

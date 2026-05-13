@@ -15,77 +15,52 @@ class EventRepositoryImpl(
 ) : EventRepository {
 
     override suspend fun getEvents(
-        page: Int,
-        limit: Int,
-        query: String,
-        category: String,
-        isOnline: Boolean?
+        page: Int, limit: Int, query: String, category: String, isOnline: Boolean?
     ): Result<List<Event>> {
-        return try {
-            val response = api.getEvents(
+        return runCatching {
+            val events = api.getEvents(
                 page = page,
                 limit = limit,
                 search = query.ifBlank { null },
                 category = category.ifBlank { null },
                 isOnline = isOnline
-            )
-            val events = response.map { it.toDomain() }
+            ).map { it.toDomain() }
+
             if (page == 1 && query.isBlank() && category.isBlank() && isOnline == null) {
                 dao.clearAll()
                 dao.insertAll(events.map { it.toEntity() })
             }
-            Result.success(events)
-        } catch (e: Exception) {
+            events
+        }.recoverCatching { e ->
             if (page == 1 && query.isBlank() && category.isBlank() && isOnline == null) {
                 val cached = dao.getAll()
-                if (cached.isNotEmpty()) Result.success(cached.map { it.toDomain() })
-                else Result.failure(e)
-            } else {
-                Result.failure(e)
-            }
+                if (cached.isNotEmpty()) cached.map { it.toDomain() }
+                else throw e
+            } else throw e
         }
     }
 
-    override suspend fun getEventById(id: String): Result<Event> {
-        return try {
-            Result.success(api.getEventById(id).toDomain())
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
+    override suspend fun getEventById(id: String): Result<Event> =
+        runCatching { api.getEventById(id).toDomain() }
 
     override suspend fun createEvent(
         title: String, description: String, date: String, time: String,
         location: String, category: String, isOnline: Boolean, capacity: Int, link: String?
-    ): Result<Event> {
-        return try {
-            val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
-            Result.success(api.createEvent(request).toDomain())
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    ): Result<Event> = runCatching {
+        val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
+        api.createEvent(request).toDomain()
     }
 
     override suspend fun updateEvent(
         id: String, title: String, description: String, date: String, time: String,
         location: String, category: String, isOnline: Boolean, capacity: Int, link: String?
-    ): Result<Event> {
-        return try {
-            val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
-            Result.success(api.updateEvent(id, request).toDomain())
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    ): Result<Event> = runCatching {
+        val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
+        api.updateEvent(id, request).toDomain()
     }
 
-    override suspend fun deleteEvent(id: String): Result<Unit> {
-        return try {
-            api.deleteEvent(id)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
+    override suspend fun deleteEvent(id: String): Result<Unit> =
+        runCatching { api.deleteEvent(id); Unit }
 
     private fun EventDto.toDomain() = Event(
         id = id, title = title, description = description, date = date, time = time,

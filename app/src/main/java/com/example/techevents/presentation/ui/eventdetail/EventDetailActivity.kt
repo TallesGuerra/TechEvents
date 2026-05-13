@@ -16,11 +16,10 @@ import com.example.techevents.R
 import com.example.techevents.data.api.RetrofitClient
 import com.example.techevents.data.local.AppDatabase
 import com.example.techevents.data.repository.EventRepositoryImpl
-import com.example.techevents.domain.usecase.GetEventDetailUseCase
 import com.example.techevents.presentation.state.UiState
 import com.example.techevents.presentation.ui.editevent.EditEventActivity
 import com.example.techevents.presentation.viewmodel.EventDetailViewModel
-import com.example.techevents.utils.toDisplayDate
+
 
 class EventDetailActivity : AppCompatActivity() {
 
@@ -90,7 +89,7 @@ class EventDetailActivity : AppCompatActivity() {
     private fun setupViewModel() {
         val dao = AppDatabase.getInstance(this).eventDao()
         val repository = EventRepositoryImpl(RetrofitClient.api, dao)
-        val factory = EventDetailViewModel.Factory(GetEventDetailUseCase(repository))
+        val factory = EventDetailViewModel.Factory(repository)
         viewModel = ViewModelProvider(this, factory)[EventDetailViewModel::class.java]
     }
 

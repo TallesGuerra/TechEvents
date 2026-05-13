@@ -15,9 +15,6 @@ import com.example.techevents.R
 import com.example.techevents.data.api.RetrofitClient
 import com.example.techevents.data.local.AppDatabase
 import com.example.techevents.data.repository.EventRepositoryImpl
-import com.example.techevents.domain.usecase.DeleteEventUseCase
-import com.example.techevents.domain.usecase.GetEventDetailUseCase
-import com.example.techevents.domain.usecase.UpdateEventUseCase
 import com.example.techevents.presentation.state.UiState
 import com.example.techevents.presentation.viewmodel.EditEventViewModel
 import com.example.techevents.utils.DateMaskWatcher
@@ -95,11 +92,7 @@ class EditEventActivity : AppCompatActivity() {
     private fun setupViewModel() {
         val dao = AppDatabase.getInstance(this).eventDao()
         val repository = EventRepositoryImpl(RetrofitClient.api, dao)
-        val factory = EditEventViewModel.Factory(
-            GetEventDetailUseCase(repository),
-            UpdateEventUseCase(repository),
-            DeleteEventUseCase(repository)
-        )
+        val factory = EditEventViewModel.Factory(repository)
         viewModel = ViewModelProvider(this, factory)[EditEventViewModel::class.java]
     }
 
