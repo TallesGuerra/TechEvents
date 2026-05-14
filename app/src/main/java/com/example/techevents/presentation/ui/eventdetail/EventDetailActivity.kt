@@ -14,10 +14,13 @@ import androidx.lifecycle.ViewModelProvider
 import coil.load
 import com.example.techevents.R
 import com.example.techevents.data.api.RetrofitClient
+import com.example.techevents.data.datasource.LocalDataSourceImpl
+import com.example.techevents.data.datasource.RemoteDataSourceImpl
 import com.example.techevents.data.local.AppDatabase
 import com.example.techevents.data.repository.EventRepositoryImpl
 import com.example.techevents.presentation.state.UiState
 import com.example.techevents.presentation.ui.editevent.EditEventActivity
+import com.example.techevents.presentation.viewmodel.EditEventViewModel
 import com.example.techevents.presentation.viewmodel.EventDetailViewModel
 
 
@@ -87,8 +90,9 @@ class EventDetailActivity : AppCompatActivity() {
     }
 
     private fun setupViewModel() {
-        val dao = AppDatabase.getInstance(this).eventDao()
-        val repository = EventRepositoryImpl(RetrofitClient.api, dao)
+        val remote = RemoteDataSourceImpl(RetrofitClient.api)
+        val local = LocalDataSourceImpl(AppDatabase.getInstance(this).eventDao())
+        val repository = EventRepositoryImpl(remote, local)
         val factory = EventDetailViewModel.Factory(repository)
         viewModel = ViewModelProvider(this, factory)[EventDetailViewModel::class.java]
     }

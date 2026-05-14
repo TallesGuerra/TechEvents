@@ -79,8 +79,9 @@ class EventListActivity : AppCompatActivity() {
     }
 
     private fun setupViewModel() {
+        val dao = AppDatabase.getInstance(this).eventDao()
         val remote = RemoteDataSourceImpl(RetrofitClient.api)
-        val local = LocalDataSourceImpl(AppDatabase.getInstance(this).eventDao())
+        val local = LocalDataSourceImpl(dao)
         val repository = EventRepositoryImpl(remote, local)
         val factory = EventListViewModel.Factory(repository)
         viewModel = ViewModelProvider(this, factory)[EventListViewModel::class.java]

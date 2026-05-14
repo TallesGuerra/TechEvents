@@ -1,6 +1,5 @@
 package com.example.techevents.data.repository
 
-import com.example.techevents.data.api.RetrofitClient.api
 import com.example.techevents.data.datasource.LocalDataSource
 import com.example.techevents.data.datasource.RemoteDataSource
 import com.example.techevents.data.dto.CreateEventRequest
@@ -25,7 +24,7 @@ class EventRepositoryImpl(
         isOnline: Boolean?
     ): Result<List<Event>> {
         return runCatching {
-            val events = api.getEvents(
+            val events = remote.getEvents(
                 page = page,
                 limit = limit,
                 search = query.ifBlank { null },
@@ -48,55 +47,27 @@ class EventRepositoryImpl(
     }
 
     override suspend fun getEventById(id: String): Result<Event> =
-        runCatching { api.getEventById(id).toDomain() }
+        runCatching { remote.getEventById(id).toDomain() }
             .recoverCatching { throw mapException(it) }
 
     override suspend fun createEvent(
-        title: String,
-        description: String,
-        date: String,
-        time: String,
-        location: String,
-        category: String,
-        isOnline: Boolean,
-        capacity: Int, link: String?
+        title: String, description: String, date: String, time: String,
+        location: String, category: String, isOnline: Boolean, capacity: Int, link: String?
     ): Result<Event> = runCatching {
-        val request = CreateEventRequest(title,
-            description,
-            date,
-            time,
-            location,
-            category,
-            isOnline,
-            capacity, link = link)
-        api.createEvent(request).toDomain()
+        val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
+        remote.createEvent(request).toDomain()
     }.recoverCatching { throw mapException(it) }
 
     override suspend fun updateEvent(
-        id: String,
-        title: String,
-        description: String,
-        date: String,
-        time: String,
-        location: String,
-        category: String,
-        isOnline: Boolean,
-        capacity: Int,
-        link: String?
+        id: String, title: String, description: String, date: String, time: String,
+        location: String, category: String, isOnline: Boolean, capacity: Int, link: String?
     ): Result<Event> = runCatching {
-        val request = CreateEventRequest(title,
-            description,
-            date,
-            time,
-            location,
-            category,
-            isOnline,
-            capacity, link = link)
-        api.updateEvent(id, request).toDomain()
+        val request = CreateEventRequest(title, description, date, time, location, category, isOnline, capacity, link = link)
+        remote.updateEvent(id, request).toDomain()
     }.recoverCatching { throw mapException(it) }
 
     override suspend fun deleteEvent(id: String): Result<Unit> =
-        runCatching { api.deleteEvent(id); Unit }
+        runCatching { remote.deleteEvent(id) }
             .recoverCatching { throw mapException(it) }
 
     private fun mapException(e: Throwable): Exception = when (e) {
@@ -106,15 +77,8 @@ class EventRepositoryImpl(
     }
 
     private fun EventDto.toDomain() = Event(
-        id = id, title = title,
-        description = description,
-        date = date,
-        time = time,
-        location = location,
-        category = category,
-        isOnline = isOnline,
-        capacity = capacity,
-        enrolled = enrolled,
-        imageUrl = imageUrl, link = link
+        id = id, title = title, description = description, date = date, time = time,
+        location = location, category = category, isOnline = isOnline, capacity = capacity,
+        enrolled = enrolled, imageUrl = imageUrl, link = link
     )
 }
