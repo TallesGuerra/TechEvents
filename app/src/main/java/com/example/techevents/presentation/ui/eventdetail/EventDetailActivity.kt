@@ -1,17 +1,13 @@
 package com.example.techevents.presentation.ui.eventdetail
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import coil.load
 import com.example.techevents.R
 import com.example.techevents.data.api.RetrofitClient
 import com.example.techevents.data.datasource.LocalDataSourceImpl
@@ -20,9 +16,11 @@ import com.example.techevents.data.local.AppDatabase
 import com.example.techevents.data.repository.EventRepositoryImpl
 import com.example.techevents.presentation.state.UiState
 import com.example.techevents.presentation.ui.editevent.EditEventActivity
-import com.example.techevents.presentation.viewmodel.EditEventViewModel
 import com.example.techevents.presentation.viewmodel.EventDetailViewModel
-
+import com.example.techevents.utils.showToast
+import com.google.android.material.button.MaterialButton
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class EventDetailActivity : AppCompatActivity() {
 
@@ -32,16 +30,18 @@ class EventDetailActivity : AppCompatActivity() {
 
     private lateinit var viewModel: EventDetailViewModel
     private lateinit var progressBar: ProgressBar
-    private lateinit var tvError: TextView
     private lateinit var tvTitle: TextView
-    private lateinit var tvDate: TextView
+    private lateinit var tvDay: TextView
+    private lateinit var tvDateLabel: TextView
     private lateinit var tvTime: TextView
     private lateinit var tvLocation: TextView
     private lateinit var tvDescription: TextView
-    private lateinit var tvEnrolled: TextView
-    private lateinit var tvLink: TextView
-    private lateinit var btnEdit: Button
-    private lateinit var ivCover: ImageView
+    private lateinit var tvCategory: TextView
+    private lateinit var tvFormat: TextView
+    private lateinit var tvCapacity: TextView
+    private lateinit var tvCapacityPct: TextView
+    private lateinit var progressCapacity: ProgressBar
+    private lateinit var btnEdit: MaterialButton
 
     private lateinit var eventId: String
 
@@ -68,87 +68,83 @@ class EventDetailActivity : AppCompatActivity() {
 
     private fun setupViews() {
         progressBar = findViewById(R.id.progressBar)
-        tvError = findViewById(R.id.tvError)
         tvTitle = findViewById(R.id.tvTitle)
-        tvDate = findViewById(R.id.tvDate)
+        tvDay = findViewById(R.id.tvDay)
+        tvDateLabel = findViewById(R.id.tvDateLabel)
         tvTime = findViewById(R.id.tvTime)
         tvLocation = findViewById(R.id.tvLocation)
         tvDescription = findViewById(R.id.tvDescription)
-        tvEnrolled = findViewById(R.id.tvEnrolled)
-        tvLink = findViewById(R.id.tvLink)
-        btnEdit = findViewById(R.id.btnEdit)
-        ivCover = findViewById(R.id.ivCover)
+        tvCategory = findViewById(R.id.tvCategory)
+        tvFormat = findViewById(R.id.tvFormat)
+        tvCapacity = findViewById(R.id.tvCapacity)
+        tvCapacityPct = findViewById(R.id.tvCapacityPct)
+        progressCapacity = findViewById(R.id.progressCapacity)
+        btnEdit = findViewById(R.id.btnEnroll)
 
+        btnEdit.text = "Editar evento"
         btnEdit.setOnClickListener {
             val intent = Intent(this, EditEventActivity::class.java)
             intent.putExtra(EditEventActivity.EXTRA_EVENT_ID, eventId)
             editLauncher.launch(intent)
         }
 
-        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener { finish() }
+        findViewById<MaterialButton>(R.id.btnBack).setOnClickListener { finish() }
     }
 
     private fun setupViewModel() {
+        val dao = AppDatabase.getInstance(this).eventDao()
         val remote = RemoteDataSourceImpl(RetrofitClient.api)
-        val local = LocalDataSourceImpl(AppDatabase.getInstance(this).eventDao())
+        val local = LocalDataSourceImpl(dao)
         val repository = EventRepositoryImpl(remote, local)
         val factory = EventDetailViewModel.Factory(repository)
         viewModel = ViewModelProvider(this, factory)[EventDetailViewModel::class.java]
     }
 
-    private fun formatDateFull(apiDate: String): String {
-        return try {
-            val input = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-            val output = java.text.SimpleDateFormat("dd 'de' MMMM, yyyy", java.util.Locale("pt", "BR"))
-            output.format(input.parse(apiDate)!!)
-        } catch (e: Exception) {
-            apiDate
-        }
-    }
-
     private fun observeEvent() {
         viewModel.event.observe(this) { state ->
-            progressBar.visibility = View.GONE
-            tvError.visibility = View.GONE
-
             when (state) {
                 is UiState.Loading -> progressBar.visibility = View.VISIBLE
                 is UiState.Success -> {
+                    progressBar.visibility = View.GONE
                     val event = state.data
+
                     tvTitle.text = event.title
-                    tvDate.text = formatDateFull(event.date)
                     tvTime.text = event.time
                     tvLocation.text = event.location
                     tvDescription.text = event.description
-                    tvEnrolled.text = "${event.enrolled}/${event.capacity} inscritos"
+                    tvCategory.text = event.category
+                    tvFormat.text = if (event.isOnline) "ONLINE" else "PRESENCIAL"
 
-                    if (!event.imageUrl.isNullOrBlank()) {
-                        ivCover.visibility = View.VISIBLE
-                        ivCover.load(event.imageUrl) { crossfade(true) }
-                    } else {
-                        ivCover.visibility = View.GONE
-                    }
+                    parseDate(event.date)
 
-                    if (event.link.isNullOrBlank()) {
-                        tvLink.visibility = View.GONE
-                    } else {
-                        tvLink.visibility = View.VISIBLE
-                        tvLink.text = "🔗 ${event.link}"
-                        tvLink.setOnClickListener {
-                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.link)))
-                        }
-                    }
+                    val pct = if (event.capacity > 0) event.enrolled * 100 / event.capacity else 0
+                    tvCapacity.text = "${event.enrolled} de ${event.capacity} vagas"
+                    tvCapacityPct.text = "$pct%"
+                    progressCapacity.progress = pct
                 }
                 is UiState.Error -> {
-                    tvError.visibility = View.VISIBLE
-                    tvError.text = state.message
+                    progressBar.visibility = View.GONE
+                    showToast(state.message)
+                    finish()
                 }
-                is UiState.Empty -> {
-                    tvError.visibility = View.VISIBLE
-                    tvError.text = "Evento não encontrado"
-                }
+                is UiState.Empty -> finish()
             }
+        }
+    }
+
+    private fun parseDate(apiDate: String) {
+        try {
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val date = sdf.parse(apiDate) ?: return
+            tvDay.text = SimpleDateFormat("dd", Locale.getDefault()).format(date)
+            val month = SimpleDateFormat("MMM", Locale("pt", "BR")).format(date)
+                .uppercase().replace(".", "")
+            val weekDay = SimpleDateFormat("EEE", Locale("pt", "BR")).format(date)
+                .uppercase().replace(".", "")
+            tvDateLabel.text = "$month · $weekDay"
+        } catch (e: Exception) {
+            tvDay.text = ""
+            tvDateLabel.text = apiDate
         }
     }
 }

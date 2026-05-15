@@ -3,26 +3,34 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="primary">#6C63FF</color>
-    <color name="primary_dark">#5A52D5</color>
-    <color name="primary_light">#8B85FF</color>
-    <color name="on_primary">#FFFFFF</color>
-    <color name="primary_container">#EEF0FF</color>
-    <color name="on_primary_container">#1A0080</color>
+    <!-- Brand: lime accent on warm off-white -->
+    <color name="primary">#1F1D17</color>           <!-- deep ink -->
+    <color name="primary_dark">#0F0E0B</color>
+    <color name="primary_light">#3A3730</color>
+    <color name="on_primary">#FAF8F1</color>
+    <color name="primary_container">#EFEDE5</color>
+    <color name="on_primary_container">#1F1D17</color>
 
-    <color name="secondary">#FF6584</color>
+    <color name="accent">#D7F23A</color>            <!-- lime / chartreuse -->
+    <color name="on_accent">#1A2207</color>
+    <color name="accent_soft">#F0F8C7</color>
+
+    <color name="secondary">#6B4FE0</color>         <!-- violet (used sparingly) -->
     <color name="on_secondary">#FFFFFF</color>
-    <color name="secondary_container">#FFE0E8</color>
-    <color name="on_secondary_container">#3D0020</color>
+    <color name="secondary_container">#EBE6FB</color>
+    <color name="on_secondary_container">#1A0F4F</color>
 
-    <color name="background">#F8F7FF</color>
+    <color name="background">#FAF8F1</color>        <!-- warm off-white -->
     <color name="surface">#FFFFFF</color>
-    <color name="on_surface">#1A1A2E</color>
-    <color name="on_surface_variant">#6B6B8A</color>
+    <color name="surface_alt">#F2EFE6</color>
+    <color name="on_surface">#1F1D17</color>
+    <color name="on_surface_variant">#6B675C</color>
+    <color name="on_surface_faint">#A8A498</color>
 
-    <color name="error">#EF4444</color>
+    <color name="error">#C24B3A</color>
     <color name="on_error">#FFFFFF</color>
 
-    <color name="divider">#E8E8F0</color>
-    <color name="chip_selected">#EEF0FF</color>
+    <color name="divider">#E8E5DA</color>
+    <color name="chip_bg">#F2EFE6</color>
+    <color name="chip_selected">#1F1D17</color>
 </resources>

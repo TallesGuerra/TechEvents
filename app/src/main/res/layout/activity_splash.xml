@@ -1,59 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary">
-
-    <ImageView
-        android:id="@+id/ivLogo"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:src="@drawable/icon_splash"
-        android:contentDescription="@string/app_name"
-        app:layout_constraintBottom_toTopOf="@id/tvAppName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+    android:background="@color/background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="32dp">
 
     <TextView
-        android:id="@+id/tvAppName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
-        android:textColor="@color/white"
-        android:letterSpacing="0.05"
-        app:layout_constraintBottom_toTopOf="@id/tvTagline"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivLogo" />
+        android:fontFamily="@font/jet_mono"
+        android:letterSpacing="0.18"
+        android:text="TECH · EVENTS"
+        android:textAllCaps="true"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="11sp"/>
 
     <TextView
-        android:id="@+id/tvTagline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/splash_tagline"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:textColor="#B3FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvAppName" />
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/instrument_serif"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:letterSpacing="-0.03"
+        android:lineSpacingMultiplier="0.92"
+        android:text="A próxima\nmeetup, sua."
+        android:textColor="@color/on_surface"
+        android:textSize="56sp"/>
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
+    <View
+        android:layout_width="40dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="22dp"
+        android:background="@color/accent"/>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="56dp"
-        android:indeterminate="true"
-        app:indicatorColor="@color/white"
-        app:trackColor="#33FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginTop="14dp"
+        android:fontFamily="@font/jakarta"
+        android:gravity="center"
+        android:text="Descubra eventos tech perto de você"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="14sp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:indeterminateTint="@color/primary"/>
+
+</LinearLayout>

@@ -3,10 +3,11 @@ package com.example.techevents.presentation.ui.eventlist
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
-import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
-import android.widget.SearchView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -24,8 +25,9 @@ import com.example.techevents.presentation.state.UiState
 import com.example.techevents.presentation.ui.createevent.CreateEventActivity
 import com.example.techevents.presentation.ui.eventdetail.EventDetailActivity
 import com.example.techevents.presentation.viewmodel.EventListViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 
 class EventListActivity : AppCompatActivity() {
 
@@ -33,13 +35,13 @@ class EventListActivity : AppCompatActivity() {
     private lateinit var adapter: EventAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
-    private lateinit var tvError: TextView
     private lateinit var tvEmpty: TextView
-    private lateinit var searchView: SearchView
-    private lateinit var btnFilterOnline: Button
-    private lateinit var btnFilterPresential: Button
-    private lateinit var btnFilterAll: Button
-    private lateinit var fabAddEvent: FloatingActionButton
+    private lateinit var etSearch: EditText
+    private lateinit var btnFilterOnline: MaterialButton
+    private lateinit var btnFilterPresencial: MaterialButton
+    private lateinit var btnFilterAll: MaterialButton
+    private lateinit var chipGroupCategory: ChipGroup
+    private lateinit var fabAddEvent: ExtendedFloatingActionButton
     private lateinit var swipeRefresh: SwipeRefreshLayout
 
     private val createEventLauncher = registerForActivityResult(
@@ -63,12 +65,12 @@ class EventListActivity : AppCompatActivity() {
     private fun setupViews() {
         recyclerView = findViewById(R.id.recyclerView)
         progressBar = findViewById(R.id.progressBar)
-        tvError = findViewById(R.id.tvError)
         tvEmpty = findViewById(R.id.tvEmpty)
-        searchView = findViewById(R.id.searchView)
+        etSearch = findViewById(R.id.etSearch)
         btnFilterOnline = findViewById(R.id.btnFilterOnline)
-        btnFilterPresential = findViewById(R.id.btnFilterPresential)
+        btnFilterPresencial = findViewById(R.id.btnFilterPresencial)
         btnFilterAll = findViewById(R.id.btnFilterAll)
+        chipGroupCategory = findViewById(R.id.chipGroupCategory)
         fabAddEvent = findViewById(R.id.fabAddEvent)
         swipeRefresh = findViewById(R.id.swipeRefresh)
 
@@ -79,9 +81,8 @@ class EventListActivity : AppCompatActivity() {
     }
 
     private fun setupViewModel() {
-        val dao = AppDatabase.getInstance(this).eventDao()
         val remote = RemoteDataSourceImpl(RetrofitClient.api)
-        val local = LocalDataSourceImpl(dao)
+        val local = LocalDataSourceImpl(AppDatabase.getInstance(this).eventDao())
         val repository = EventRepositoryImpl(remote, local)
         val factory = EventListViewModel.Factory(repository)
         viewModel = ViewModelProvider(this, factory)[EventListViewModel::class.java]
@@ -106,30 +107,25 @@ class EventListActivity : AppCompatActivity() {
     }
 
     private fun setupSearchView() {
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                viewModel.search(query ?: "")
-                return true
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.search(s?.toString() ?: "")
             }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText.isNullOrBlank()) viewModel.search("")
-                return true
-            }
+            override fun afterTextChanged(s: Editable?) {}
         })
     }
 
     private fun setupFilters() {
         btnFilterAll.setOnClickListener { viewModel.filterByOnline(null) }
         btnFilterOnline.setOnClickListener { viewModel.filterByOnline(true) }
-        btnFilterPresential.setOnClickListener { viewModel.filterByOnline(false) }
+        btnFilterPresencial.setOnClickListener { viewModel.filterByOnline(false) }
     }
 
     private fun observeEvents() {
         viewModel.events.observe(this) { state ->
             swipeRefresh.isRefreshing = false
             progressBar.visibility = View.GONE
-            tvError.visibility = View.GONE
             tvEmpty.visibility = View.GONE
             recyclerView.visibility = View.GONE
 
@@ -142,8 +138,8 @@ class EventListActivity : AppCompatActivity() {
                     adapter.submitList(state.data)
                 }
                 is UiState.Error -> {
-                    tvError.visibility = View.VISIBLE
-                    tvError.text = state.message
+                    tvEmpty.visibility = View.VISIBLE
+                    tvEmpty.text = state.message
                 }
                 is UiState.Empty -> tvEmpty.visibility = View.VISIBLE
             }

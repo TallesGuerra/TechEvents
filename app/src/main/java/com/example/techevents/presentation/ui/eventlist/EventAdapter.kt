@@ -26,32 +26,45 @@ class EventAdapter(
     }
 
     inner class EventViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvDay: TextView = itemView.findViewById(R.id.tvDay)
+        private val tvMonth: TextView = itemView.findViewById(R.id.tvMonth)
+        private val tvWeekday: TextView = itemView.findViewById(R.id.tvWeekday)
+        private val tvFormat: TextView = itemView.findViewById(R.id.tvFormat)
+        private val tvTime: TextView = itemView.findViewById(R.id.tvTime)
         private val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
-        private val tvDate: TextView = itemView.findViewById(R.id.tvDate)
         private val tvLocation: TextView = itemView.findViewById(R.id.tvLocation)
         private val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)
         private val tvEnrolled: TextView = itemView.findViewById(R.id.tvEnrolled)
-        private val tvFormat: TextView = itemView.findViewById(R.id.tvFormat)
+
 
         fun bind(event: Event) {
+            // parse data formato "YYYY-MM-DD"
+            val parts = event.date.split("-")
+            val months = listOf("JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ")
+            if (parts.size == 3) {
+                tvDay.text = parts[2]
+                tvMonth.text = months.getOrElse(parts[1].toIntOrNull()?.minus(1) ?: 0) { "?" }
+                try {
+                    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                    val cal = java.util.Calendar.getInstance().apply { time = sdf.parse(event.date)!! }
+                    val days = listOf("DOM","SEG","TER","QUA","QUI","SEX","SAB")
+                    tvWeekday.text = days[cal.get(java.util.Calendar.DAY_OF_WEEK) - 1]
+                } catch (e: Exception) { tvWeekday.text = "" }
+            }
+
             tvTitle.text = event.title
-            tvDate.text = "${event.date}  ${event.time}"
+            tvTime.text = event.time
             tvLocation.text = event.location
-            tvEnrolled.text = "${event.enrolled}/${event.capacity} inscritos"
+            tvEnrolled.text = "${event.enrolled}/${event.capacity}"
 
             if (event.category.isNotBlank()) {
                 tvCategory.visibility = View.VISIBLE
                 tvCategory.text = event.category
-                tvCategory.backgroundTintList = ColorStateList.valueOf(categoryColor(event.category))
-                tvCategory.setTextColor(android.graphics.Color.WHITE)
             } else {
                 tvCategory.visibility = View.GONE
             }
 
-            tvFormat.text = if (event.isOnline) "Online" else "Presencial"
-            tvFormat.backgroundTintList = ColorStateList.valueOf(
-                if (event.isOnline) 0xFF0078D4.toInt() else 0xFF2E7D32.toInt()
-            )
+            tvFormat.text = if (event.isOnline) "ONLINE" else "PRESENCIAL"
 
             itemView.setOnClickListener { onClick(event) }
         }

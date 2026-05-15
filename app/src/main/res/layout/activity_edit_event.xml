@@ -1,4 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Editar Evento — clone do activity_create_event.xml com:
+    - botão "Excluir Evento" no topo direito (com.google.android.material.button.MaterialButton id=btnDelete)
+    - botão principal renomeado para "Salvar alterações"
+    - cabeçalho "EDITAR" / "Ajustes finais."
+
+    Para manter conciso, este arquivo herda 100% do layout de criar.
+    Cole o activity_create_event.xml aqui e:
+    1. Mude o tvHeading de "Conta sobre o\nseu evento." para "Ajustes\nfinais."
+    2. Mude a MonoLabel "NOVO" para "EDITAR"
+    3. Mude btnSave text para "Salvar alterações"
+    4. Adicione no fim, antes do </LinearLayout> raiz, abaixo do form scroll:
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -6,199 +19,360 @@
     android:background="@color/background"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/gradient_toolbar"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationIconTint="@color/on_primary"
-        app:title="Editar Evento"
-        app:titleTextColor="@color/on_primary" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBack"
+            style="@style/Widget.Material3.Button.IconButton.Outlined"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:iconPadding="0dp"
+            app:icon="@android:drawable/ic_media_previous"
+            app:iconTint="@color/on_surface"
+            app:strokeColor="@color/divider"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDelete"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Excluir evento"
+            android:textAllCaps="false"
+            android:fontFamily="@font/jakarta_bold"
+            android:textColor="@color/error"
+            app:icon="@android:drawable/ic_menu_delete"
+            app:iconTint="@color/error"/>
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="64dp"
-        android:visibility="gone" />
+        android:indeterminate="true"
+        android:visibility="gone"/>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="22dp"
+        android:paddingBottom="120dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:orientation="vertical">
+
+            <!-- Editorial heading -->
+            <TextView
+                style="@style/Text.Mono.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EDITAR"/>
+
+            <TextView
+                android:id="@+id/tvHeading"
+                style="@style/Text.Display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="38sp"
+                android:lineSpacingMultiplier="0.95"
+                android:text="Ajustes\nfinais."/>
+
+            <!-- Título -->
+            <TextView
+                style="@style/Text.Mono.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="TÍTULO *"/>
 
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Título *"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                android:layout_marginTop="8dp"
+                android:hint="Ex: React Brasil Summit">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapSentences" />
-
+                    android:fontFamily="@font/instrument_serif"
+                    android:textSize="22sp"
+                    android:inputType="text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Descrição -->
+            <TextView
+                style="@style/Text.Mono.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="DESCRIÇÃO"/>
+
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Descrição"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                android:layout_marginTop="8dp"
+                android:hint="O que torna esse evento especial?">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minLines="3"
+                    android:maxLines="5"
                     android:gravity="top"
-                    android:inputType="textMultiLine|textCapSentences"
-                    android:minLines="3" />
-
+                    android:inputType="textMultiLine"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Data + Hora -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:hint="Data (DD/MM/AAAA)"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etDate"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="date" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Horário (HH:mm)"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                    android:layout_marginEnd="5dp"
+                    android:orientation="vertical">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etTime"
+                    <TextView
+                        style="@style/Text.Mono.Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DATA *"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TextField"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="time" />
+                        android:layout_marginTop="8dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_my_calendar"
+                        app:startIconTint="@color/on_surface_variant"
+                        android:hint="22/05/2026">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="date"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/Text.Mono.Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="HORÁRIO"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TextField"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_recent_history"
+                        app:startIconTint="@color/on_surface_variant"
+                        android:hint="09:00">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="time"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <!-- Formato (segmented toggle) -->
+            <TextView
+                style="@style/Text.Mono.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="FORMATO"/>
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleFormat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Local *"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                android:layout_marginTop="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPresencial"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="Presencial"
+                    android:textAllCaps="false"
+                    android:fontFamily="@font/jakarta_bold"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOnline"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="Online"
+                    android:textAllCaps="false"
+                    android:fontFamily="@font/jakarta_bold"/>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- Local / Link -->
+            <TextView
+                android:id="@+id/lblLocation"
+                style="@style/Text.Mono.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="LOCAL *"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/TextField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Endereço, sala, cidade">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etLocation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapWords" />
-
+                    android:inputType="text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <!-- Categoria (chip group) -->
+            <TextView
+                style="@style/Text.Mono.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="CATEGORIA"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Categoria"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                android:layout_marginTop="8dp"
+                app:singleSelection="true"
+                app:chipSpacingHorizontal="6dp">
 
-                <AutoCompleteTextView
-                    android:id="@+id/etCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:focusable="false"
-                    android:inputType="none" />
+            </com.google.android.material.chip.ChipGroup>
 
-            </com.google.android.material.textfield.TextInputLayout>
+            <!-- Capacidade -->
+            <TextView
+                style="@style/Text.Mono.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="CAPACIDADE"/>
 
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Capacidade"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                android:layout_marginTop="8dp"
+                app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                app:startIconTint="@color/on_surface_variant"
+                app:suffixText="VAGAS"
+                android:hint="100">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etCapacity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number" />
-
+                    android:inputType="number"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Link (opcional) -->
+            <TextView
+                style="@style/Text.Mono.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="LINK (OPCIONAL)"/>
+
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:hint="Link do evento (opcional)"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                android:layout_marginTop="8dp"
+                android:hint="https://evento.com">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etLink"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textUri" />
-
+                    android:inputType="textUri"/>
             </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/cbIsOnline"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:paddingVertical="4dp"
-                android:text="Evento Online"
-                android:textColor="@color/on_surface"
-                android:textSize="15sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSave"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:padding="14dp"
-                android:text="Salvar Alterações"
-                android:textSize="16sp"
-                app:backgroundTint="@color/primary" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDelete"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="14dp"
-                android:text="Excluir Evento"
-                android:textSize="16sp"
-                app:backgroundTint="@color/error"
-                style="@style/Widget.Material3.Button" />
 
         </LinearLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Sticky bottom buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@color/background"
+        android:elevation="4dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Button.Ghost"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_marginEnd="10dp"
+            android:paddingHorizontal="22dp"
+            android:text="Cancelar"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            style="@style/Button.Primary"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="Salvar alterações"
+            android:textSize="15sp"
+            app:icon="@android:drawable/checkbox_on_background"
+            app:iconTint="@color/on_primary"/>
+    </LinearLayout>
+
 
 </LinearLayout>

@@ -2,12 +2,8 @@ package com.example.techevents.presentation.ui.editevent
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
-import com.google.android.material.materialswitch.MaterialSwitch
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +20,10 @@ import com.example.techevents.utils.TimeMaskWatcher
 import com.example.techevents.utils.showToast
 import com.example.techevents.utils.toApiDate
 import com.example.techevents.utils.toDisplayDate
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 
 class EditEventActivity : AppCompatActivity() {
 
@@ -37,15 +37,20 @@ class EditEventActivity : AppCompatActivity() {
     private lateinit var etDate: EditText
     private lateinit var etTime: EditText
     private lateinit var etLocation: EditText
-    private lateinit var etCategory: AutoCompleteTextView
+    private lateinit var chipGroupCategory: ChipGroup
     private lateinit var etCapacity: EditText
     private lateinit var etLink: EditText
-    private lateinit var cbIsOnline: MaterialSwitch
-    private lateinit var btnSave: Button
-    private lateinit var btnDelete: Button
+    private lateinit var toggleFormat: MaterialButtonToggleGroup
+    private lateinit var btnSave: MaterialButton
+    private lateinit var btnDelete: MaterialButton
     private lateinit var progressBar: ProgressBar
 
     private lateinit var eventId: String
+
+    private val categories = listOf(
+        "Android", "iOS", "Kotlin", "Flutter", "Web", "Backend",
+        "DevOps", "IA / Machine Learning", "Segurança", "Cloud", "UX/UI", "Outro"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,35 +70,34 @@ class EditEventActivity : AppCompatActivity() {
         etDate = findViewById(R.id.etDate)
         etTime = findViewById(R.id.etTime)
         etLocation = findViewById(R.id.etLocation)
-        etCategory = findViewById(R.id.etCategory)
+        chipGroupCategory = findViewById(R.id.chipGroupCategory)
         etCapacity = findViewById(R.id.etCapacity)
         etLink = findViewById(R.id.etLink)
-        cbIsOnline = findViewById(R.id.cbIsOnline)
+        toggleFormat = findViewById(R.id.toggleFormat)
         btnSave = findViewById(R.id.btnSave)
         btnDelete = findViewById(R.id.btnDelete)
         progressBar = findViewById(R.id.progressBar)
 
-        val categories = listOf(
-            "Android", "iOS", "Kotlin", "Flutter", "Web", "Backend",
-            "DevOps", "IA / Machine Learning", "Segurança", "Cloud", "UX/UI", "Outro"
-        )
-        etCategory.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categories)
-        )
+        categories.forEach { cat ->
+            val chip = Chip(this)
+            chip.text = cat
+            chip.isCheckable = true
+            chipGroupCategory.addView(chip)
+        }
 
         btnSave.setOnClickListener { onSaveClicked() }
         btnDelete.setOnClickListener { confirmDelete() }
-
-        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener { finish() }
+        findViewById<MaterialButton>(R.id.btnBack).setOnClickListener { finish() }
+        findViewById<MaterialButton>(R.id.btnCancel).setOnClickListener { finish() }
 
         etDate.addTextChangedListener(DateMaskWatcher())
         etTime.addTextChangedListener(TimeMaskWatcher())
     }
 
     private fun setupViewModel() {
+        val dao = AppDatabase.getInstance(this).eventDao()
         val remote = RemoteDataSourceImpl(RetrofitClient.api)
-        val local = LocalDataSourceImpl(AppDatabase.getInstance(this).eventDao())
+        val local = LocalDataSourceImpl(dao)
         val repository = EventRepositoryImpl(remote, local)
         val factory = EditEventViewModel.Factory(repository)
         viewModel = ViewModelProvider(this, factory)[EditEventViewModel::class.java]
@@ -111,10 +115,18 @@ class EditEventActivity : AppCompatActivity() {
                     etDate.setText(event.date.toDisplayDate())
                     etTime.setText(event.time)
                     etLocation.setText(event.location)
-                    etCategory.setText(event.category, false)
                     etCapacity.setText(event.capacity.toString())
                     etLink.setText(event.link ?: "")
-                    cbIsOnline.isChecked = event.isOnline
+
+                    for (i in 0 until chipGroupCategory.childCount) {
+                        val chip = chipGroupCategory.getChildAt(i) as? Chip
+                        if (chip?.text == event.category) {
+                            chip.isChecked = true
+                            break
+                        }
+                    }
+
+                    toggleFormat.check(if (event.isOnline) R.id.btnOnline else R.id.btnPresencial)
                 }
                 is UiState.Error -> {
                     progressBar.visibility = View.GONE
@@ -174,10 +186,13 @@ class EditEventActivity : AppCompatActivity() {
         val date = etDate.text.toString().trim().toApiDate()
         val time = etTime.text.toString().trim()
         val location = etLocation.text.toString().trim()
-        val category = etCategory.text.toString().trim()
+        val checkedChipId = chipGroupCategory.checkedChipId
+        val category = if (checkedChipId != View.NO_ID)
+            chipGroupCategory.findViewById<Chip>(checkedChipId).text.toString()
+        else ""
         val capacityText = etCapacity.text.toString().trim()
         val link = etLink.text.toString().trim().ifBlank { null }
-        val isOnline = cbIsOnline.isChecked
+        val isOnline = toggleFormat.checkedButtonId == R.id.btnOnline
 
         if (title.isBlank() || date.isBlank() || location.isBlank()) {
             showToast("Preencha título, data e local")
